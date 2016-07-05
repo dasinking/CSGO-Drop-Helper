@@ -9,6 +9,9 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+config.yml
+config_deezinking.yml
+steaminv_config.yml
 
 ## Specific to RubyMotion:
 .dat*
