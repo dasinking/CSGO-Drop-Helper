@@ -12,6 +12,7 @@
 config.yml
 config_deezinking.yml
 steaminv_config.yml
+/debug/
 
 ## Specific to RubyMotion:
 .dat*
