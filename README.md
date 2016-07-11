@@ -10,6 +10,6 @@ A Twitter bot, which automatically notifies you about a drop in a CSGO major tou
 ## Usage
 
 1. Copy `config.yml.example` to `config.yml` and modify it to your needs.
-2. Copy `steaminv_config.yml.example` to `config.yml` and modify it to your needs.
+2. Copy `steaminv_config.yml.example` to `steaminv_config.yml` and modify it to your needs.
 3. Run the steaminv.rb
 4. Well, that's it. It's that simple.
