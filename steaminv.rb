@@ -15,8 +15,8 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
-@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α1 online")
-puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α1 online"
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α2 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α2 online"
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -84,15 +84,15 @@ count($count2)
 
 while 1!=2 do 				#main loop
   puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] Looped"
-  #sleep(60)
+  sleep(60)
   httpget
   count($count1)
   for i in 1..$INVCONF[:number_of_accounts].to_i
-    #if $count1[i] > $count2[i]
+    if $count1[i] > $count2[i]
       dropparse(i)
       tweet(i)
       $count2[i] = $count1[i]
-    #end
+    end
     if $count1[i] < $count2[i]
       $count2[i] = $count1[i]
     end
