@@ -15,8 +15,8 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
-@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α2 online")
-puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α2 online"
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α3 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α3 online"
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -26,7 +26,9 @@ $count2       = Array.new($INVCONF[:number_of_accounts].to_i)
 #functions
 def pricecheck (markethash)
 	priceget = HTTParty.get(URI.encode("http://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=#{markethash}"))
-	$price = priceget["lowest_price"]
+	if priceget["success"] = true then 
+    $price = "(#{priceget["lowest_price"]})"
+  end
 end
 
 def dropparse (i)
@@ -45,28 +47,33 @@ def dropparse (i)
 end
 
 def tweet (i)
-  		@Twitter.update("[#{Time.new.strftime("%H:%M:%S")}] Yo @#{$INVCONF[eval(":twitter#{i.to_s}")]} @ #{$INVCONF[eval(":accnr#{i.to_s}")]}. Acc! hf with your #{$drop}! (#{$price})")
-  				   puts "[#{Time.new.strftime("%H:%M:%S")}] Yo @#{$INVCONF[eval(":twitter#{i.to_s}")]} @ #{$INVCONF[eval(":accnr#{i.to_s}")]}. Acc! hf with your #{$drop}! (#{$price})"
+  		@Twitter.update("[#{Time.new.strftime("%H:%M:%S")}] Yo @#{$INVCONF[eval(":twitter#{i.to_s}")]} @ #{$INVCONF[eval(":accnr#{i.to_s}")]}. Acc! hf with your #{$drop}! #{$price}")
+  				   puts "[#{Time.new.strftime("%H:%M:%S")}] Yo @#{$INVCONF[eval(":twitter#{i.to_s}")]} @ #{$INVCONF[eval(":accnr#{i.to_s}")]}. Acc! hf with your #{$drop}! #{$price}"
 end
 
-def httpgetcheck(i)
-  begin
-    $responsetemp[i] = HTTParty.get("http://steamcommunity.com/profiles/#{$INVCONF[eval(':id' + i.to_s)]}/inventory/json/730/2")
-    rescue => e				#fucking steam servers...
-    retry while true
-  end	
-  if $responsetemp[i]["rgInventory"] != nil then
-    $response[i] = $responsetemp[i]
-  else
-    puts "re-get #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}"
-    httpgetcheck(i)
+def http
+  for i in 1..$INVCONF[:number_of_accounts].to_i
+    while 1!=2
+      httpget(i)
+      break if httpgetcheck(i) == true
+    end
+    puts "got #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}"
   end
 end
 
-def httpget
-  for i in 1..$INVCONF[:number_of_accounts].to_i
-    httpgetcheck(i)
-    puts "got #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}"
+def httpget(i)
+  $responsetemp[i] = HTTParty.get("http://steamcommunity.com/profiles/#{$INVCONF[eval(':id' + i.to_s)]}/inventory/json/730/2")
+  rescue => e       #fucking steam servers...
+  retry while true
+end
+
+def httpgetcheck(i)
+  if $responsetemp[i]["rgInventory"] != nil then
+    $response[i] = $responsetemp[i]
+    return true
+  else
+    puts "re-get #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}"
+    return false
   end
 end
 
@@ -79,13 +86,13 @@ def count(arr)
   end
 end
 
-httpget    					#first definition of the inventories
+http                    #first definition of the inventories
 count($count2)
 
-while 1!=2 do 				#main loop
+while 1!=2 do           #main loop
   puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] Looped"
   sleep(60)
-  httpget
+  http
   count($count1)
   for i in 1..$INVCONF[:number_of_accounts].to_i
     if $count1[i] > $count2[i]
