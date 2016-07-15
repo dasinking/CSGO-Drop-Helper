@@ -15,8 +15,8 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
-@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α3 online")
-puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α3 online"
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online"
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -26,8 +26,10 @@ $count2       = Array.new($INVCONF[:number_of_accounts].to_i)
 #functions
 def pricecheck (markethash)
 	priceget = HTTParty.get(URI.encode("http://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=#{markethash}"))
-	if priceget["success"] = true then 
+	if priceget["success"] == true then 
     $price = "(#{priceget["lowest_price"]})"
+  else
+    $price = ""
   end
 end
 
@@ -38,10 +40,15 @@ def dropparse (i)
   if parse["rgDescriptions"][desc_id]["market_hash_name"].include? "Souvenir" then
   	$drop = "#{parse["rgDescriptions"][desc_id]["market_hash_name"]} signed by #{parse["rgDescriptions"][desc_id]["tags"].last["name"]}"
   	pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
+    tweet(i)
   	else
-  		if $INVCONF[eval(":major#{i.to_s}")] = 0 then
+      if $INVCONF[eval(":major#{i.to_s}")] == "0" then
   			$drop = parse["rgDescriptions"][desc_id]["market_hash_name"]
   			pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
+        tweet(i)
+      else
+        $drop = ""
+        $price = ""
   		end
   	end
 end
@@ -56,6 +63,7 @@ def http
     while 1!=2
       httpget(i)
       break if httpgetcheck(i) == true
+      sleep(3)
     end
     puts "got #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}"
   end
@@ -97,7 +105,6 @@ while 1!=2 do           #main loop
   for i in 1..$INVCONF[:number_of_accounts].to_i
     if $count1[i] > $count2[i]
       dropparse(i)
-      tweet(i)
       $count2[i] = $count1[i]
     end
     if $count1[i] < $count2[i]
