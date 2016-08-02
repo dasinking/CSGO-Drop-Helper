@@ -15,8 +15,8 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
-@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online")
-puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online"
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α5 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α5 online"
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -38,7 +38,7 @@ def dropparse (i)
   firstid = parse["rgInventory"].first.first
   desc_id = parse["rgInventory"][firstid]["classid"] + '_' + parse["rgInventory"][firstid]["instanceid"]
   if parse["rgDescriptions"][desc_id]["market_hash_name"].include? "Souvenir" then
-  	$drop = "#{parse["rgDescriptions"][desc_id]["market_hash_name"]} signed by #{parse["rgDescriptions"][desc_id]["tags"].last["name"]}"
+  	$drop = "#{parse["rgDescriptions"][desc_id]["market_hash_name"]} signed by #{parse["rgDescriptions"][desc_id]["tags"].last["name"].split.first}"
   	pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
     tweet(i)
   	else
