@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'httparty'
 require 'json'
 require 'pp'
@@ -15,8 +16,8 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
-@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online")
-puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α4 online"
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v3.α1 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v3.α1 online"
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -35,22 +36,32 @@ end
 
 def dropparse (i)
   parse   = JSON.load([ $response[i] ].to_json).first
-  firstid = parse["rgInventory"].first.first
-  desc_id = parse["rgInventory"][firstid]["classid"] + '_' + parse["rgInventory"][firstid]["instanceid"]
-  if parse["rgDescriptions"][desc_id]["market_hash_name"].include? "Souvenir" then
-  	$drop = "#{parse["rgDescriptions"][desc_id]["market_hash_name"]} signed by #{parse["rgDescriptions"][desc_id]["tags"].last["name"]}"
-  	pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
+  classid = parse["assets"].first["classid"]
+
+  #classid-suche
+    for x in 0..parse["descriptions"].count  
+      if parse["descriptions"][x]["classid"] == classid then
+        begin
+          classid = x
+          break
+        end
+      end
+    end
+
+  if parse["descriptions"][classid]["market_hash_name"].include? "Souvenir" then
+    $drop = "#{parse["descriptions"][classid]["market_hash_name"]} signed by #{parse["descriptions"][classid]["tags"].last["internal_name"].split.first}"
+    pricecheck(parse["descriptions"][classid]["market_hash_name"])
     tweet(i)
-  	else
+    else
       if $INVCONF[eval(":major#{i.to_s}")] == "0" then
-  			$drop = parse["rgDescriptions"][desc_id]["market_hash_name"]
-  			pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
+        $drop = parse["descriptions"][classid]["market_hash_name"]
+        pricecheck(parse["descriptions"][classid]["market_hash_name"])
         tweet(i)
       else
         $drop = ""
         $price = ""
-  		end
-  	end
+      end
+    end
 end
 
 def tweet (i)
@@ -70,13 +81,13 @@ def http
 end
 
 def httpget(i)
-  $responsetemp[i] = HTTParty.get("http://steamcommunity.com/profiles/#{$INVCONF[eval(':id' + i.to_s)]}/inventory/json/730/2")
+  $responsetemp[i] = HTTParty.get("http://steamcommunity.com/inventory/#{$INVCONF[eval(':id' + i.to_s)]}/730/2?l=english&count=5000")
   rescue => e       #fucking steam servers...
   retry while true
 end
 
 def httpgetcheck(i)
-  if $responsetemp[i]["rgInventory"] != nil then
+  if $responsetemp[i]["assets"] != nil then
     $response[i] = $responsetemp[i]
     return true
   else
@@ -87,8 +98,8 @@ end
 
 def count(arr)
   for i in 1..$INVCONF[:number_of_accounts].to_i
-    if $response[i]["rgInventory"] != nil then
-      arr[i] = $response[i]["rgInventory"].count
+    if $response[i]["assets"] != nil then
+      arr[i] = $response[i]["assets"].count
       puts "counted #{$INVCONF[eval(":twitter#{i.to_s}")]} #{$INVCONF[eval(":accnr#{i.to_s}")]}: #{arr[i]}"
     end
   end
@@ -99,7 +110,7 @@ count($count2)
 
 while 1!=2 do           #main loop
   puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] Looped"
-  sleep(60)
+  sleep(15)
   http
   count($count1)
   for i in 1..$INVCONF[:number_of_accounts].to_i
