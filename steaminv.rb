@@ -16,8 +16,13 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   config.access_token_secret 	= @CONFIG[:twitter_token_secret]
 end
 
+<<<<<<< HEAD
 @Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v3.α1 online")
 puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v3.α1 online"
+=======
+@Twitter.update("[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α5 online")
+puts "[#{Time.new.strftime("%d-%m-%Y %H:%M:%S")}] CS:GO Drop Helper v2.α5 online"
+>>>>>>> origin/alpha
 
 $response     = Array.new($INVCONF[:number_of_accounts].to_i)
 $responsetemp = Array.new($INVCONF[:number_of_accounts].to_i)
@@ -36,6 +41,7 @@ end
 
 def dropparse (i)
   parse   = JSON.load([ $response[i] ].to_json).first
+<<<<<<< HEAD
   classid = parse["assets"].first["classid"]
 
   #classid-suche
@@ -51,6 +57,13 @@ def dropparse (i)
   if parse["descriptions"][classid]["market_hash_name"].include? "Souvenir" then
     $drop = "#{parse["descriptions"][classid]["market_hash_name"]} signed by #{parse["descriptions"][classid]["tags"].last["internal_name"].split.first}"
     pricecheck(parse["descriptions"][classid]["market_hash_name"])
+=======
+  firstid = parse["rgInventory"].first.first
+  desc_id = parse["rgInventory"][firstid]["classid"] + '_' + parse["rgInventory"][firstid]["instanceid"]
+  if parse["rgDescriptions"][desc_id]["market_hash_name"].include? "Souvenir" then
+  	$drop = "#{parse["rgDescriptions"][desc_id]["market_hash_name"]} signed by #{parse["rgDescriptions"][desc_id]["tags"].last["name"].split.first}"
+  	pricecheck(parse["rgDescriptions"][desc_id]["market_hash_name"])
+>>>>>>> origin/alpha
     tweet(i)
     else
       if $INVCONF[eval(":major#{i.to_s}")] == "0" then
